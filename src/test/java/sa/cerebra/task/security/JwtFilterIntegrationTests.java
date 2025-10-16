@@ -1,0 +1,55 @@
+package sa.cerebra.task.security;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import sa.cerebra.task.entity.User;
+import sa.cerebra.task.repository.UserRepository;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+class JwtFilterIntegrationTests {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @BeforeEach
+    void setupUser() {
+        User u = new User();
+        u.setPhone("+3000");
+        userRepository.save(u);
+    }
+
+    @Test
+    void rejects_request_with_expired_token() throws Exception {
+        String expiredToken = jwtUtil.generateToken(1L);
+        Thread.sleep(2100L); // ensure expiration (configured to 1s in test properties)
+
+        mockMvc.perform(get("/api/v1/files/upload")
+                        .header("Authorization", "Bearer " + expiredToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(content().string(containsString("Token expired")));
+    }
+}
+
+
