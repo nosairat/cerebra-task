@@ -14,12 +14,9 @@ import java.util.concurrent.TimeUnit;
 
 
 @Slf4j
-@Profile("test,local")
+@Profile("local")
 @Service
 public class InMemoryCacheStore implements CacheStore {
-    public InMemoryCacheStore() {
-    log.info("In InMemoryCacheStore");
-    }
 
     // Using ConcurrentHashMap for thread-safe access
     private final ConcurrentHashMap<String, CacheEntry> cache = new ConcurrentHashMap<>();
