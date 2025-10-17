@@ -27,9 +27,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestPropertySource(properties = {
-        "app.storage.path=cerebra-test-storage"
-})
 @Transactional
 class FileControllerFullIntegrationTests {
 
@@ -38,9 +35,6 @@ class FileControllerFullIntegrationTests {
 
     @Autowired
     private UserRepository userRepository;
-
-    @TempDir
-    Path tempDir;
 
     private User testUser;
 

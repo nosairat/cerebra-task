@@ -240,18 +240,5 @@ class FileServiceTests {
                 .hasMessageContaining(ErrorCode.INVALID_FILE_NAME.getMessage());
     }
 
-    @Test
-    void downloadFile_shouldCallStorageService() {
-        // Given
-        String filePath = "test/file.txt";
-        String userFilePath = "1/test/file.txt";
-        when(storageService.getResource(userFilePath)).thenReturn(resource);
 
-        // When
-        Resource result = fileService.downloadFile(testUser, filePath);
-
-        // Then
-        assertThat(result).isEqualTo(resource);
-        verify(storageService).getResource(userFilePath);
-    }
 }

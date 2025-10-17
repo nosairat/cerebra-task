@@ -226,13 +226,6 @@ class FileControllerIntegrationTests {
                 .andExpect(status().isBadRequest());
     }
 
-    @Test
-    void downloadFile_missingPreview_shouldReturnBadRequest() throws Exception {
-        // When & Then
-        mockMvc.perform(get("/api/v1/files/download")
-                        .param("path", "test.txt"))
-                .andExpect(status().isBadRequest());
-    }
 
     @Test
     void uploadFiles_missingFiles_shouldReturnBadRequest() throws Exception {

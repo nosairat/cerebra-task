@@ -43,7 +43,11 @@ public class FileService {
         log.info("Downloading file {} for user {}", path, user.getUsername());
         String userStoragePath = PathHelper.getUserStoragePath(user, path);
 
-        return storageService.getResource(userStoragePath);
+        Resource resource = storageService.getResource(userStoragePath);
+        if (!resource.exists()) {
+            throw new CerebraException(ErrorCode.FILE_NOT_FOUND);
+        }
+        return resource;
     }
 
 
