@@ -9,9 +9,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import sa.cerebra.task.entity.User;
-import sa.cerebra.task.exception.FileNotFoundException;
-import sa.cerebra.task.exception.FileStorageException;
-import sa.cerebra.task.exception.InvalidFileException;
+
+import sa.cerebra.task.exception.CerebraException;
 import sa.cerebra.task.model.FileModel;
 import sa.cerebra.task.service.StorageService;
 
@@ -57,7 +56,7 @@ public class LocalStorage implements StorageService {
             return files;
         } catch (IOException e) {
             log.error("Error listing files for user {} at path {}", user.getUsername(), path, e);
-            throw new FileStorageException("Failed to list files", e);
+            throw new RuntimeException("Failed to list files", e);
         }
     }
 
@@ -82,7 +81,7 @@ public class LocalStorage implements StorageService {
             return createFileModel(targetPath, userStoragePath);
         } catch (IOException e) {
             log.error("Error uploading file {} for user {}", file.getOriginalFilename(), user.getUsername(), e);
-            throw new FileStorageException("Failed to upload file", e);
+            throw new RuntimeException("Failed to upload file", e);
         }
     }
 
@@ -105,22 +104,22 @@ public class LocalStorage implements StorageService {
             Path targetPath = userStoragePath.resolve(filePath);
 
             if (!Files.exists(targetPath)) {
-                throw new FileNotFoundException("File not found");
+                throw new CerebraException("File not found");
             }
 
             if (!Files.isRegularFile(targetPath)) {
-                throw new InvalidFileException("Path is not a file");
+                throw new CerebraException("Path is not a file");
             }
 
             // Verify the file is within user's storage directory
             if (!targetPath.normalize().startsWith(userStoragePath.normalize())) {
-                throw new InvalidFileException("Access denied");
+                throw new CerebraException("Access denied");
             }
 
             return new FileSystemResource(targetPath);
         } catch (Exception e) {
             log.error("Error downloading file {} for user {}", filePath, user.getUsername(), e);
-            throw new FileStorageException("Failed to download file", e);
+            throw new RuntimeException("Failed to download file", e);
         }
     }
 

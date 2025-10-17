@@ -6,7 +6,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import sa.cerebra.task.entity.User;
-import sa.cerebra.task.exception.InvalidFileException;
+import sa.cerebra.task.exception.CerebraException;
 import sa.cerebra.task.model.FileModel;
 
 import java.util.List;
@@ -40,17 +40,17 @@ public class FileService {
         
         String originalFilename = file.getOriginalFilename();
         if (originalFilename == null || originalFilename.trim().isEmpty()) {
-            throw new InvalidFileException("File must have a name");
+            throw new CerebraException("File must have a name");
         }
         
         // Check for path traversal attempts
         if (originalFilename.contains("..") || originalFilename.contains("/") || originalFilename.contains("\\")) {
-            throw new InvalidFileException("Invalid file name");
+            throw new CerebraException("Invalid file name");
         }
         
         // Check file size (e.g., 100MB limit)
         if (file.getSize() > 100 * 1024 * 1024) {
-            throw new InvalidFileException("File size exceeds maximum limit of 100MB");
+            throw new CerebraException("File size exceeds maximum limit of 100MB");
         }
     }
 
