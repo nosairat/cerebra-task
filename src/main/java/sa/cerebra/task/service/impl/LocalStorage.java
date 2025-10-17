@@ -118,7 +118,7 @@ public class LocalStorage implements StorageService {
             }
 
             return new FileSystemResource(targetPath);
-        } catch (Exception e) {
+        } catch (IOException e) {
             log.error("Error downloading file {} for user {}", filePath, user.getUsername(), e);
             throw new RuntimeException("Failed to download file", e);
         }
