@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import sa.cerebra.task.entity.User;
 
 import sa.cerebra.task.exception.CerebraException;
+import sa.cerebra.task.exception.ErrorCode;
 import sa.cerebra.task.model.FileModel;
 import sa.cerebra.task.service.StorageService;
 
@@ -104,16 +105,16 @@ public class LocalStorage implements StorageService {
             Path targetPath = userStoragePath.resolve(filePath);
 
             if (!Files.exists(targetPath)) {
-                throw new CerebraException("File not found");
+                throw new CerebraException(ErrorCode.FILE_NOT_FOUND);
             }
 
             if (!Files.isRegularFile(targetPath)) {
-                throw new CerebraException("Path is not a file");
+                throw new CerebraException(ErrorCode.PATH_NOT_FILE);
             }
 
             // Verify the file is within user's storage directory
             if (!targetPath.normalize().startsWith(userStoragePath.normalize())) {
-                throw new CerebraException("Access denied");
+                throw new CerebraException(ErrorCode.ACCESS_DENIED);
             }
 
             return new FileSystemResource(targetPath);

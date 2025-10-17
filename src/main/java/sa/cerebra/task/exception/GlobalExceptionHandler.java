@@ -19,8 +19,9 @@ public class GlobalExceptionHandler {
     
     @ExceptionHandler(CerebraException.class)
     public ResponseEntity<Object> handleCerebraException(CerebraException e) {
-        Map<String, String> body = new HashMap<>();
+        Map<String, Object> body = new HashMap<>();
         body.put("message", e.getMessage());
+        body.put("errorCode", e.getErrorCode().getCode());
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 

@@ -17,14 +17,25 @@ class GlobalExceptionHandlerTests {
 
     @Test
     void mapsCerebraException_toBadRequest() {
-        ResponseEntity<Object> response = handler.handleCerebraException(new CerebraException("oops"));
+        ResponseEntity<Object> response = handler.handleCerebraException(new CerebraException(ErrorCode.FILE_NOT_FOUND));
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat((Map<String, Object>) response.getBody()).containsEntry("message", "oops");
+        Map<String, Object> body = (Map<String, Object>) response.getBody();
+        assertThat(body).containsEntry("message", "File not found");
+        assertThat(body).containsEntry("errorCode", "FILE_NOT_FOUND");
+    }
+
+    @Test
+    void mapsCerebraException_withStringMessage_toBadRequest() {
+        ResponseEntity<Object> response = handler.handleCerebraException(new CerebraException("Custom error message"));
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Map<String, Object> body = (Map<String, Object>) response.getBody();
+        assertThat(body).containsEntry("message", "Custom error message");
+        assertThat(body).containsEntry("errorCode", "INTERNAL_ERROR");
     }
 
     @Test
     void mapsGenericException_toInternalServerError() {
-        ResponseEntity<Object> response = handler.handleCerebraException(new RuntimeException("boom"));
+        ResponseEntity<Object> response = handler.handleGenericException(new RuntimeException("boom"));
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
         assertThat((Map<String, Object>) response.getBody()).containsEntry("message", "internal server error");
     }
