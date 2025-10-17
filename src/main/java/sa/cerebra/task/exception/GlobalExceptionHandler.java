@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+    
     @ExceptionHandler(CerebraException.class)
     public ResponseEntity<Object> handleCerebraException(CerebraException e) {
         Map<String, String> body = new HashMap<>();
@@ -35,8 +36,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Object> handleCerebraException(Exception e) {
-        log.error(e.getMessage(), e);
+    public ResponseEntity<Object> handleGenericException(Exception e) {
+        log.error("Unexpected error: {}", e.getMessage(), e);
         Map<String, String> body = new HashMap<>();
         body.put("message", "internal server error");
         return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
