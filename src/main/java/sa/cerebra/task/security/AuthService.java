@@ -1,6 +1,7 @@
 package sa.cerebra.task.security;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import sa.cerebra.task.cache.CacheStore;
@@ -11,6 +12,7 @@ import sa.cerebra.task.exception.ErrorCode;
 import sa.cerebra.task.service.SendSms;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class AuthService {
     final CacheStore cacheStore;
@@ -21,11 +23,12 @@ public class AuthService {
 
     public void login(String phone) {
 //        todo add validation on phone number
-//        String otp = OtpHelper.generateRandomOtp();
-        String otp = "111111";
+        String otp = OtpHelper.generateRandomOtp();
         cacheStore.put(OTP_REDIS_NAME, phone, otp, OtpHelper.OTP_EXPIRY_MINUTES);
 
-        sendSms.send(phone, otp);
+        log.debug("OTP generated for {}", otp);
+        String otpMsg = String.format("This is the otp %s", otp);
+        sendSms.send(phone, otpMsg);
     }
 
     public TokenResponse validate(String phone, String otp) {

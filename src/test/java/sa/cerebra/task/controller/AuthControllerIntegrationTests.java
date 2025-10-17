@@ -64,10 +64,11 @@ class AuthControllerIntegrationTests {
         // Arrange - Set up SMS mock to capture OTP
         AtomicReference<String> capturedOtp = new AtomicReference<>();
         AtomicReference<String> capturedPhone = new AtomicReference<>();
-        
+
         doAnswer(invocation -> {
             capturedPhone.set(invocation.getArgument(0));
-            capturedOtp.set(invocation.getArgument(1));
+            String msg = invocation.getArgument(1).toString();
+            capturedOtp.set(msg.substring(msg.length()-6));
             return null;
         }).when(sendSms).send(anyString(), anyString());
 
@@ -85,7 +86,6 @@ class AuthControllerIntegrationTests {
         verify(sendSms).send(eq(phoneNumber), anyString());
         assertThat(capturedPhone.get()).isEqualTo(phoneNumber);
         assertThat(capturedOtp.get()).isNotNull();
-        assertThat(capturedOtp.get()).isEqualTo("111111"); // Since AuthService uses hardcoded OTP
 
         // Act - Step 2: Call validate OTP endpoint
         ValidateOtpRequest validateRequest = new ValidateOtpRequest();

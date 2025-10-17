@@ -21,29 +21,29 @@ import java.util.List;
 public class FileService {
     private final StorageService storageService;
 
-    public List<FileModel> listFiles(User user, String relativeUserPath) {
-        log.info("Listing files for user {} at path {}", user.getUsername(), relativeUserPath);
-        String storagePath = PathHelper.getUserStoragePath(user, relativeUserPath);
-        List<FileModel> list = storageService.list(storagePath);
-        return fillModelDetails(list, relativeUserPath);
+    public List<FileModel> listFiles(User user, String path) {
+        log.info("Listing files for user {} at path {}", user.getUsername(), path);
+        String userStoragePath = PathHelper.getUserStoragePath(user, path);
+        List<FileModel> list = storageService.list(userStoragePath);
+        return fillModelDetails(list, path);
     }
 
-    public List<FileModel> uploadMultipleFiles(User user, MultipartFile[] files, String relativeUserPath) {
-        log.info("Uploading {} files for user {} to path {}", files.length, user.getUsername(), relativeUserPath);
+    public List<FileModel> uploadMultipleFiles(User user, MultipartFile[] files, String path) {
+        log.info("Uploading {} files for user {} to path {}", files.length, user.getUsername(), path);
         for (MultipartFile file : files) {
             validateFile(file);
         }
-        String storagePath = PathHelper.getUserStoragePath(user, relativeUserPath);
+        String userStoragePath = PathHelper.getUserStoragePath(user, path);
 
-        List<FileModel> upload = storageService.upload(files, storagePath);
-        return fillModelDetails(upload, relativeUserPath);
+        List<FileModel> upload = storageService.upload(files, userStoragePath);
+        return fillModelDetails(upload, path);
     }
 
-    public Resource downloadFile(User user, String relativeUserPath) {
-        log.info("Downloading file {} for user {}", relativeUserPath, user.getUsername());
-        String storagePath = PathHelper.getUserStoragePath(user, relativeUserPath);
+    public Resource downloadFile(User user, String path) {
+        log.info("Downloading file {} for user {}", path, user.getUsername());
+        String userStoragePath = PathHelper.getUserStoragePath(user, path);
 
-        return storageService.getResource(storagePath);
+        return storageService.getResource(userStoragePath);
     }
 
 
@@ -65,12 +65,12 @@ public class FileService {
         }
     }
 
-    private List<FileModel> fillModelDetails(List<FileModel> list, String relativeUserPath) {
+    private List<FileModel> fillModelDetails(List<FileModel> list, String path) {
         String relativePath = "";
-        if (!Strings.isBlank(relativeUserPath) && !Strings.isEmpty(relativeUserPath))
-            relativePath = relativeUserPath.concat(File.separator);
+        if (!Strings.isBlank(path) && !Strings.isEmpty(path))
+            relativePath = path.concat(File.separator);
         for (var q : list)
-            q.setRelativePath(relativePath.concat(q.getName()));
+            q.setPath(relativePath.concat(q.getName()));
         return list;
     }
 }

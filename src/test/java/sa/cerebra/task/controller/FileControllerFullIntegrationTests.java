@@ -70,7 +70,7 @@ class FileControllerFullIntegrationTests {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$[0].name").value("test-file.txt"))
-                .andExpect(jsonPath("$[0].relativePath").value(folderName+"/test-file.txt"))
+                .andExpect(jsonPath("$[0].path").value(folderName+"/test-file.txt"))
                 .andReturn();
 
         // Step 2: List files in folderName directory

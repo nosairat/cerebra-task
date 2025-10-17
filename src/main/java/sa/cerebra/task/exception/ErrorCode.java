@@ -12,6 +12,8 @@ public enum ErrorCode {
     // Authentication related errors
     INVALID_OTP("INVALID_OTP", "Invalid or expired OTP"),
     
+    SHARE_LINK_EXPIRED("SHARE_LINK_EXPIRED", "Share link has expired"),
+    
     // Generic errors
     INTERNAL_ERROR("INTERNAL_ERROR", "Internal server error"),
     VALIDATION_ERROR("VALIDATION_ERROR", "Validation failed"),

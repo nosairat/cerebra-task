@@ -45,7 +45,7 @@ public class FileController {
     }
 
     @GetMapping("/download")
-    public ResponseEntity<Resource> downloadFile(@SafePath @RequestParam String path, @RequestParam boolean preview) {
+    public ResponseEntity<Resource> downloadFile(@SafePath @RequestParam String path, @RequestParam(required = false) boolean preview) {
         User user = AuthHelper.getCurrentUser();
         Resource resource = fileService.downloadFile(user, path);
 

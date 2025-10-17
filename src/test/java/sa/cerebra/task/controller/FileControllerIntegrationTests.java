@@ -106,7 +106,7 @@ class FileControllerIntegrationTests {
         List<FileModel> expectedFiles = Arrays.asList(
                 FileModel.builder()
                         .name("file1.txt")
-                        .relativePath("file1.txt")
+                        .path("file1.txt")
                         .uploadDate(LocalDateTime.now())
                         .build()
         );
@@ -131,12 +131,12 @@ class FileControllerIntegrationTests {
         List<FileModel> expectedFiles = Arrays.asList(
                 FileModel.builder()
                         .name("test1.txt")
-                        .relativePath("uploads/test1.txt")
+                        .path("uploads/test1.txt")
                         .uploadDate(LocalDateTime.now())
                         .build(),
                 FileModel.builder()
                         .name("test2.txt")
-                        .relativePath("uploads/test2.txt")
+                        .path("uploads/test2.txt")
                         .uploadDate(LocalDateTime.now())
                         .build()
         );
@@ -164,7 +164,7 @@ class FileControllerIntegrationTests {
         List<FileModel> expectedFiles = Arrays.asList(
                 FileModel.builder()
                         .name("test.txt")
-                        .relativePath("test.txt")
+                        .path("test.txt")
                         .uploadDate(LocalDateTime.now())
                         .build()
         );
@@ -256,7 +256,7 @@ class FileControllerIntegrationTests {
         List<FileModel> expectedFiles = Arrays.asList(
                 FileModel.builder()
                         .name("file1.txt")
-                        .relativePath("file1.txt")
+                        .path("file1.txt")
                         .uploadDate(LocalDateTime.now())
                         .build()
         );
@@ -280,7 +280,7 @@ class FileControllerIntegrationTests {
         List<FileModel> expectedFiles = Arrays.asList(
                 FileModel.builder()
                         .name("test-file_123.txt")
-                        .relativePath("uploads/test-file_123.txt")
+                        .path("uploads/test-file_123.txt")
                         .uploadDate(LocalDateTime.now())
                         .build()
         );
