@@ -7,12 +7,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import sa.cerebra.task.entity.User;
 import sa.cerebra.task.model.FileModel;
 import sa.cerebra.task.security.AuthHelper;
 import sa.cerebra.task.service.FileService;
+import sa.cerebra.task.validation.SafePath;
 
 import java.util.List;
 
@@ -20,12 +22,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/files")
 @RequiredArgsConstructor
+@Validated
 public class FileController {
 
     private final FileService fileService;
 
     @GetMapping
-    public ResponseEntity<List<FileModel>> listFiles(@RequestParam(required = false) String path) {
+    public ResponseEntity<List<FileModel>> listFiles(@SafePath @RequestParam(required = false) String path) {
         User user = AuthHelper.getCurrentUser();
         List<FileModel> files = fileService.listFiles(user, path);
         return ResponseEntity.ok(files);
@@ -35,18 +38,18 @@ public class FileController {
     @PostMapping
     public ResponseEntity<List<FileModel>> upload(
             @RequestParam("files") MultipartFile[] files,
-            @RequestParam(value = "path", required = false) String path) {
+            @SafePath @RequestParam(value = "path", required = false) String path) {
         User user = AuthHelper.getCurrentUser();
         List<FileModel> uploadedFiles = fileService.uploadMultipleFiles(user, files, path);
         return ResponseEntity.status(HttpStatus.CREATED).body(uploadedFiles);
     }
 
-        @GetMapping("/download")
-    public ResponseEntity<Resource> downloadFile(@RequestParam String path, @RequestParam boolean preview) {
+    @GetMapping("/download")
+    public ResponseEntity<Resource> downloadFile(@SafePath @RequestParam String path, @RequestParam boolean preview) {
         User user = AuthHelper.getCurrentUser();
         Resource resource = fileService.downloadFile(user, path);
 
-        if(preview) {
+        if (preview) {
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
                     .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")

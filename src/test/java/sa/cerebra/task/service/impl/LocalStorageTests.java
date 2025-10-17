@@ -50,10 +50,10 @@ class LocalStorageTests {
     @Test
     void list_shouldReturnEmptyList_whenPathDoesNotExist() {
         // Given
-        String path = "/nonexistent/path";
+        String path = "1/nonexistent/path";
 
         // When
-        List<FileModel> result = localStorage.list(testUser, path);
+        List<FileModel> result = localStorage.list(path);
 
         // Then
         assertThat(result).isEmpty();
@@ -66,10 +66,10 @@ class LocalStorageTests {
         Files.createDirectories(userDir);
         Path filePath = userDir.resolve("test.txt");
         Files.write(filePath, "test content".getBytes());
-        String path = "test.txt";
+        String path = "1";
 
         // When
-        List<FileModel> result = localStorage.list(testUser, path);
+        List<FileModel> result = localStorage.list( path);
 
         // Then
         assertThat(result).hasSize(1);
@@ -86,7 +86,7 @@ class LocalStorageTests {
         Files.createDirectory(userDir.resolve("subdir"));
 
         // When
-        List<FileModel> result = localStorage.list(testUser, null);
+        List<FileModel> result = localStorage.list("1");
 
         // Then
         assertThat(result).hasSize(3);
@@ -100,10 +100,10 @@ class LocalStorageTests {
         Path subdir = userDir.resolve("subdir");
         Files.createDirectories(subdir);
         Files.write(subdir.resolve("file.txt"), "content".getBytes());
-        String path = "subdir";
+        String path = "1/subdir";
 
         // When
-        List<FileModel> result = localStorage.list(testUser, path);
+        List<FileModel> result = localStorage.list( path);
 
         // Then
         assertThat(result).hasSize(1);
@@ -114,15 +114,14 @@ class LocalStorageTests {
     void uploadFile_shouldCreateFileAndReturnFileModel() throws IOException {
         // Given
         MultipartFile file = new MockMultipartFile("file", "test.txt", "text/plain", "test content".getBytes());
-        String path = "uploads";
-
+        String path = "1/uploads";
+        Path fullPath = localStorage.getFullPath(path);
         // When
-        FileModel result = localStorage.uploadFile(testUser, file, path);
+        FileModel result = localStorage.uploadFile( file, fullPath);
 
         // Then
         assertThat(result.getName()).isEqualTo("test.txt");
-        assertThat(result.getRelativePath()).isEqualTo("uploads/test.txt");
-        
+
         // Verify file was created
         Path expectedPath = tempDir.resolve("1").resolve("uploads").resolve("test.txt");
         assertThat(Files.exists(expectedPath)).isTrue();
@@ -133,14 +132,13 @@ class LocalStorageTests {
     void uploadFile_withNullPath_shouldUploadToRoot() throws IOException {
         // Given
         MultipartFile file = new MockMultipartFile("file", "test.txt", "text/plain", "test content".getBytes());
-
+        Path fullPath = localStorage.getFullPath("1");
         // When
-        FileModel result = localStorage.uploadFile(testUser, file, null);
+        FileModel result = localStorage.uploadFile(file, fullPath);
 
         // Then
         assertThat(result.getName()).isEqualTo("test.txt");
-        assertThat(result.getRelativePath()).isEqualTo("test.txt");
-        
+
         // Verify file was created in root
         Path expectedPath = tempDir.resolve("1").resolve("test.txt");
         assertThat(Files.exists(expectedPath)).isTrue();
@@ -150,14 +148,14 @@ class LocalStorageTests {
     void uploadFile_withEmptyPath_shouldUploadToRoot() throws IOException {
         // Given
         MultipartFile file = new MockMultipartFile("file", "test.txt", "text/plain", "test content".getBytes());
+        Path fullPath = localStorage.getFullPath("1");
 
         // When
-        FileModel result = localStorage.uploadFile(testUser, file, "");
+        FileModel result = localStorage.uploadFile( file, fullPath);
 
         // Then
         assertThat(result.getName()).isEqualTo("test.txt");
-        assertThat(result.getRelativePath()).isEqualTo("test.txt");
-        
+
         // Verify file was created in root
         Path expectedPath = tempDir.resolve("1").resolve("test.txt");
         assertThat(Files.exists(expectedPath)).isTrue();
@@ -172,9 +170,10 @@ class LocalStorageTests {
         Files.write(existingFile, "old content".getBytes());
         
         MultipartFile file = new MockMultipartFile("file", "test.txt", "text/plain", "new content".getBytes());
+        Path fullPath = localStorage.getFullPath("1");
 
         // When
-        localStorage.uploadFile(testUser, file, null);
+        localStorage.uploadFile(file, fullPath);
 
         // Then
         assertThat(Files.readString(existingFile)).isEqualTo("new content");
@@ -186,10 +185,10 @@ class LocalStorageTests {
         MultipartFile file1 = new MockMultipartFile("file1", "file1.txt", "text/plain", "content1".getBytes());
         MultipartFile file2 = new MockMultipartFile("file2", "file2.txt", "text/plain", "content2".getBytes());
         MultipartFile[] files = {file1, file2};
-        String path = "uploads";
+        String path = "1/uploads";
 
         // When
-        List<FileModel> result = localStorage.uploadMultipleFiles(testUser, files, path);
+        List<FileModel> result = localStorage.upload( files, path);
 
         // Then
         assertThat(result).hasSize(2);
@@ -202,16 +201,16 @@ class LocalStorageTests {
     }
 
     @Test
-    void downloadFile_shouldReturnResource_whenFileExists() throws IOException {
+    void getResourceExists() throws IOException {
         // Given
         Path userDir = tempDir.resolve("1");
         Files.createDirectories(userDir);
         Path filePath = userDir.resolve("test.txt");
         Files.write(filePath, "test content".getBytes());
-        String path = "test.txt";
+        String path = "1/test.txt";
 
         // When
-        Resource result = localStorage.downloadFile(testUser, path);
+        Resource result = localStorage.getResource( path);
 
         // Then
         assertThat(result).isNotNull();
@@ -219,62 +218,32 @@ class LocalStorageTests {
     }
 
     @Test
-    void downloadFile_shouldThrowException_whenFileDoesNotExist() {
+    void getResourceDoesNotExist() {
         // Given
-        String path = "nonexistent.txt";
+        String path = "1/nonexistent.txt";
 
         // When & Then
-        assertThatThrownBy(() -> localStorage.downloadFile(testUser, path))
+        assertThatThrownBy(() -> localStorage.getResource( path))
                 .isInstanceOf(CerebraException.class)
                 .hasMessageContaining(ErrorCode.FILE_NOT_FOUND.getMessage());
     }
 
     @Test
-    void downloadFile_shouldThrowException_whenPathIsDirectory() throws IOException {
+    void getResource_shouldThrowException_whenPathIsDirectory() throws IOException {
         // Given
         Path userDir = tempDir.resolve("1");
         Files.createDirectories(userDir);
         Files.createDirectory(userDir.resolve("subdir"));
-        String path = "subdir";
+        String path = "1/subdir";
 
         // When & Then
-        assertThatThrownBy(() -> localStorage.downloadFile(testUser, path))
+        assertThatThrownBy(() -> localStorage.getResource( path))
                 .isInstanceOf(CerebraException.class)
                 .hasMessageContaining(ErrorCode.PATH_NOT_FILE.getMessage());
     }
 
-    @Test
-    void downloadFile_shouldThrowException_whenPathTraversalAttempt() throws IOException {
-        // Given
-        Path userDir = tempDir.resolve("1");
-        Files.createDirectories(userDir);
-        Files.write(userDir.resolve("test.txt"), "content".getBytes());
-        
-        // Create a file outside user directory
-        Path outsideFile = tempDir.resolve("outside.txt");
-        Files.write(outsideFile, "outside content".getBytes());
 
-        // When & Then - Try to access file outside user directory
-        assertThatThrownBy(() -> localStorage.downloadFile(testUser, "../outside.txt"))
-                .isInstanceOf(CerebraException.class)
-                .hasMessageContaining(ErrorCode.ACCESS_DENIED.getMessage());
-    }
 
-    @Test
-    void getUserStoragePath_shouldCreateUserDirectory() throws IOException {
-        // Given
-        User newUser = new User();
-        newUser.setId(999L);
-        newUser.setPhone("+9999999999");
-
-        // When
-        localStorage.list(newUser, null);
-
-        // Then
-        Path expectedUserDir = tempDir.resolve("999");
-        assertThat(Files.exists(expectedUserDir)).isTrue();
-        assertThat(Files.isDirectory(expectedUserDir)).isTrue();
-    }
 
     @Test
     void createFileModel_shouldSetCorrectProperties() throws IOException {
@@ -284,16 +253,15 @@ class LocalStorageTests {
         Path filePath = userDir.resolve("subdir").resolve("test.txt");
         Files.createDirectories(filePath.getParent());
         Files.write(filePath, "test content".getBytes());
-        String path = "subdir/test.txt";
+        String path = "1/subdir/test.txt";
 
         // When
-        List<FileModel> result = localStorage.list(testUser, path);
+        List<FileModel> result = localStorage.list(path);
 
         // Then
         assertThat(result).hasSize(1);
         FileModel fileModel = result.get(0);
         assertThat(fileModel.getName()).isEqualTo("test.txt");
-        assertThat(fileModel.getRelativePath()).isEqualTo("subdir/test.txt");
         assertThat(fileModel.getUploadDate()).isNotNull();
     }
 }

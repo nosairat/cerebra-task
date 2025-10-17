@@ -2,18 +2,17 @@ package sa.cerebra.task.service;
 
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
-import sa.cerebra.task.entity.User;
 import sa.cerebra.task.model.FileModel;
 
 import java.util.List;
 
 public interface StorageService {
-    List<FileModel> list(User user, String path);
+    List<FileModel> list(String path);
+
+    List<FileModel> upload(MultipartFile[] files, String path);
     
-    FileModel uploadFile(User user, MultipartFile file, String path);
-    
-    List<FileModel> uploadMultipleFiles(User user, MultipartFile[] files, String path);
-    
-    Resource downloadFile(User user, String filePath);
+    Resource getResource(String filePath);
+
+//    Path getActualPath(User user, String filePath);
 
 }

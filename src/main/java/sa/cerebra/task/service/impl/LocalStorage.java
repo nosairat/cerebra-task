@@ -15,7 +15,6 @@ import sa.cerebra.task.exception.ErrorCode;
 import sa.cerebra.task.model.FileModel;
 import sa.cerebra.task.service.StorageService;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -34,106 +33,78 @@ public class LocalStorage implements StorageService {
     @Value("${app.storage.path:tmp/cerebra-storage}")
     private String storageBasePath;
 
+    @SneakyThrows
     @Override
-    public List<FileModel> list(User user, String path) {
-        try {
-            Path userStoragePath = getUserStoragePath(user);
-            Path targetPath = path == null || path.isEmpty() ?
-                    userStoragePath : userStoragePath.resolve(path);
+    public List<FileModel> list(String userStoragePath) {
+            Path path = getFullPath(userStoragePath);
 
-            if (!Files.exists(targetPath)) {
+//            Files.createDirectories(path);
+
+            if (!Files.exists(path)) {
                 return new ArrayList<>();
             }
 
-            if (!Files.isDirectory(targetPath)) {
-                return List.of(createFileModel(targetPath, userStoragePath));
+            if (!Files.isDirectory(path)) {
+                 return List.of(createFileModel(path));
             }
 
             List<FileModel> files = new ArrayList<>();
-            try (Stream<Path> paths = Files.list(targetPath)) {
-                paths.forEach(p -> files.add(createFileModel(p, userStoragePath)));
+            try (Stream<Path> paths = Files.list(path)) {
+                paths.forEach(p -> files.add(createFileModel(p)));
             }
-
             return files;
-        } catch (IOException e) {
-            log.error("Error listing files for user {} at path {}", user.getUsername(), path, e);
-            throw new RuntimeException("Failed to list files", e);
-        }
     }
 
-    @Override
-    public FileModel uploadFile(User user, MultipartFile file, String path) {
-        try {
-
-            Path userStoragePath = getUserStoragePath(user);
-            Path targetDirectory = path == null || path.isEmpty() ?
-                    userStoragePath : userStoragePath.resolve(path);
-
+    @SneakyThrows
+    public FileModel uploadFile(MultipartFile file, Path path) {
             // Create directory if it doesn't exist
-            Files.createDirectories(targetDirectory);
+            Files.createDirectories(path);
 
             // Generate unique filename to avoid conflicts
             String originalFilename = file.getOriginalFilename();
-            Path targetPath = targetDirectory.resolve(originalFilename);
+            Path targetPath = path.resolve(originalFilename);
 
             // Save file
             Files.copy(file.getInputStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
 
-            return createFileModel(targetPath, userStoragePath);
-        } catch (IOException e) {
-            log.error("Error uploading file {} for user {}", file.getOriginalFilename(), user.getUsername(), e);
-            throw new RuntimeException("Failed to upload file", e);
-        }
+            return createFileModel(targetPath);
     }
 
+    @SneakyThrows
     @Override
-    public List<FileModel> uploadMultipleFiles(User user, MultipartFile[] files, String path) {
+    public List<FileModel> upload( MultipartFile[] files, String userStoragePath) {
         List<FileModel> uploadedFiles = new ArrayList<>();
+        Path path = getFullPath(userStoragePath);
+        Files.createDirectories(path);
 
         for (MultipartFile file : files) {
-            uploadedFiles.add(uploadFile(user, file, path));
-
+            uploadedFiles.add(uploadFile( file, path));
         }
 
         return uploadedFiles;
     }
 
     @Override
-    public Resource downloadFile(User user, String filePath) {
-        try {
-            Path userStoragePath = getUserStoragePath(user);
-            Path targetPath = userStoragePath.resolve(filePath);
+    public Resource getResource(String filePath) {
+            Path path = getFullPath(filePath);
 
-            if (!Files.exists(targetPath)) {
+            if (!Files.exists(path)) {
                 throw new CerebraException(ErrorCode.FILE_NOT_FOUND);
             }
 
-            if (!Files.isRegularFile(targetPath)) {
+            if (!Files.isRegularFile(path)) {
                 throw new CerebraException(ErrorCode.PATH_NOT_FILE);
             }
-
-            // Verify the file is within user's storage directory
-            if (!targetPath.normalize().startsWith(userStoragePath.normalize())) {
-                throw new CerebraException(ErrorCode.ACCESS_DENIED);
-            }
-
-            return new FileSystemResource(targetPath);
-        } catch (IOException e) {
-            log.error("Error downloading file {} for user {}", filePath, user.getUsername(), e);
-            throw new RuntimeException("Failed to download file", e);
-        }
-    }
-
-    private Path getUserStoragePath(User user) throws IOException {
-        Path userPath = Paths.get(storageBasePath, user.getId().toString());
-        Files.createDirectories(userPath);
-        return userPath;
+            return new FileSystemResource(path);
     }
 
     @SneakyThrows
-    private FileModel createFileModel(Path path, Path userStoragePath) {
+    public Path getFullPath(String userStoragePath) {
+        return Paths.get(storageBasePath, userStoragePath).normalize();
+    }
 
-        String relativePath = userStoragePath.relativize(path).toString();
+    @SneakyThrows
+    private FileModel createFileModel(Path path) {
 
         BasicFileAttributes attributes = Files.readAttributes(
                 path,
@@ -143,7 +114,7 @@ public class LocalStorage implements StorageService {
         FileTime createdTime = attributes.creationTime();
         return FileModel.builder()
                 .name(path.getFileName().toString())
-                .relativePath(relativePath.isEmpty() ? "" :  relativePath.replace("\\", "/"))
+//                .relativePath(relativePath.isEmpty() ? "" :  relativePath.replace("\\", "/"))
                 .uploadDate(createdTime.toInstant()
                         .atZone(java.time.ZoneId.systemDefault())
                         .toLocalDateTime())

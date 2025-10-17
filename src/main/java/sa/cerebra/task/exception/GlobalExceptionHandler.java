@@ -1,5 +1,6 @@
 package sa.cerebra.task.exception;
 
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
-    
+
     @ExceptionHandler(CerebraException.class)
     public ResponseEntity<Object> handleCerebraException(CerebraException e) {
         Map<String, Object> body = new HashMap<>();
@@ -38,6 +39,19 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<?> handleConstraintViolationException(ConstraintViolationException ex) {
+        Map<String, String> errors = ex.getConstraintViolations()
+                .stream()
+                .collect(Collectors.toMap(error -> (error.getPropertyPath().toString()), (error -> error.getMessage())));
+        Map<String, Object> body = Map.of(
+                "message", "bad request",
+                "errors", errors
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
     @ExceptionHandler({MissingServletRequestPartException.class, ServletRequestBindingException.class})
     public ResponseEntity<?> handleMissingServletRequestPartException(Exception ex) {
         Map<String, Object> body = Map.of(

@@ -47,19 +47,20 @@ class FileServiceTests {
     @Test
     void listFiles_shouldCallStorageService() {
         // Given
-        String path = "/test/path";
+        String path = "test/path";
+        String userPath = "1/test/path";
         List<FileModel> expectedFiles = Arrays.asList(
                 FileModel.builder().name("file1.txt").build(),
                 FileModel.builder().name("file2.txt").build()
         );
-        when(storageService.list(testUser, path)).thenReturn(expectedFiles);
+        when(storageService.list(userPath)).thenReturn(expectedFiles);
 
         // When
         List<FileModel> result = fileService.listFiles(testUser, path);
 
         // Then
         assertThat(result).isEqualTo(expectedFiles);
-        verify(storageService).list(testUser, path);
+        verify(storageService).list( userPath);
     }
 
     @Test
@@ -68,21 +69,22 @@ class FileServiceTests {
         List<FileModel> expectedFiles = Arrays.asList(
                 FileModel.builder().name("file1.txt").build()
         );
-        when(storageService.list(testUser, null)).thenReturn(expectedFiles);
+        when(storageService.list( "1")).thenReturn(expectedFiles);
 
         // When
         List<FileModel> result = fileService.listFiles(testUser, null);
 
         // Then
         assertThat(result).isEqualTo(expectedFiles);
-        verify(storageService).list(testUser, null);
+        verify(storageService).list( "1");
     }
 
     @Test
     void uploadMultipleFiles_withValidFiles_shouldCallStorageService() {
         // Given
         MultipartFile[] files = {multipartFile, multipartFile};
-        String path = "/test/path";
+        String path = "test/path";
+        String userFilePath = "1/test/path";
         List<FileModel> expectedFiles = Arrays.asList(
                 FileModel.builder().name("file1.txt").build(),
                 FileModel.builder().name("file2.txt").build()
@@ -90,14 +92,14 @@ class FileServiceTests {
 
         when(multipartFile.getOriginalFilename()).thenReturn("test.txt");
         when(multipartFile.getSize()).thenReturn(1024L);
-        when(storageService.uploadMultipleFiles(testUser, files, path)).thenReturn(expectedFiles);
+        when(storageService.upload( files, userFilePath)).thenReturn(expectedFiles);
 
         // When
         List<FileModel> result = fileService.uploadMultipleFiles(testUser, files, path);
 
         // Then
         assertThat(result).isEqualTo(expectedFiles);
-        verify(storageService).uploadMultipleFiles(testUser, files, path);
+        verify(storageService).upload( files, userFilePath);
     }
 
     @Test
@@ -203,19 +205,20 @@ class FileServiceTests {
     void uploadMultipleFiles_withValidFileSize_shouldPass() {
         // Given
         MultipartFile[] files = {multipartFile};
-        String path = "/test/path";
+        String path = "test/path";
+        String userFilePath = "1/test/path";
         List<FileModel> expectedFiles = Arrays.asList(FileModel.builder().name("file.txt").build());
 
         when(multipartFile.getOriginalFilename()).thenReturn("file.txt");
         when(multipartFile.getSize()).thenReturn(100L * 1024 * 1024); // 100MB (exactly at limit)
-        when(storageService.uploadMultipleFiles(testUser, files, path)).thenReturn(expectedFiles);
+        when(storageService.upload( files, userFilePath)).thenReturn(expectedFiles);
 
         // When
         List<FileModel> result = fileService.uploadMultipleFiles(testUser, files, path);
 
         // Then
         assertThat(result).isEqualTo(expectedFiles);
-        verify(storageService).uploadMultipleFiles(testUser, files, path);
+        verify(storageService).upload( files, userFilePath);
     }
 
     @Test
@@ -240,14 +243,15 @@ class FileServiceTests {
     @Test
     void downloadFile_shouldCallStorageService() {
         // Given
-        String filePath = "/test/file.txt";
-        when(storageService.downloadFile(testUser, filePath)).thenReturn(resource);
+        String filePath = "test/file.txt";
+        String userFilePath = "1/test/file.txt";
+        when(storageService.getResource(userFilePath)).thenReturn(resource);
 
         // When
         Resource result = fileService.downloadFile(testUser, filePath);
 
         // Then
         assertThat(result).isEqualTo(resource);
-        verify(storageService).downloadFile(testUser, filePath);
+        verify(storageService).getResource(userFilePath);
     }
 }

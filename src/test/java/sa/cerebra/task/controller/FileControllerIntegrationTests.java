@@ -61,12 +61,34 @@ class FileControllerIntegrationTests {
         List<FileModel> expectedFiles = Arrays.asList(
                 FileModel.builder()
                         .name("file1.txt")
-                        .relativePath("file1.txt")
                         .uploadDate(LocalDateTime.now())
                         .build(),
                 FileModel.builder()
                         .name("file2.txt")
-                        .relativePath("file2.txt")
+                        .uploadDate(LocalDateTime.now())
+                        .build()
+        );
+        when(fileService.listFiles(eq(testUser), any(String.class))).thenReturn(expectedFiles);
+
+        // When & Then
+        mockMvc.perform(get("/api/v1/files")
+                        .param("path", "test/path"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[0].name").value("file1.txt"))
+                .andExpect(jsonPath("$[1].name").value("file2.txt"));
+    }
+    @Test
+    void listFiles_shouldThrwoError() throws Exception {
+        // Given
+        List<FileModel> expectedFiles = Arrays.asList(
+                FileModel.builder()
+                        .name("file1.txt")
+                        .uploadDate(LocalDateTime.now())
+                        .build(),
+                FileModel.builder()
+                        .name("file2.txt")
                         .uploadDate(LocalDateTime.now())
                         .build()
         );
@@ -75,11 +97,7 @@ class FileControllerIntegrationTests {
         // When & Then
         mockMvc.perform(get("/api/v1/files")
                         .param("path", "/test/path"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$[0].name").value("file1.txt"))
-                .andExpect(jsonPath("$[1].name").value("file2.txt"));
+                .andExpect(status().isBadRequest());
     }
 
     @Test
