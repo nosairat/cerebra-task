@@ -39,11 +39,4 @@ public class SecurityConfig {
         return http.build();
     }
 
-//to be deleted
-    @Bean
-    public AuthenticationManager authenticationManager(UserDetailsService userDetailsService) {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userDetailsService);
-        return new ProviderManager(provider);
-    }
 }
