@@ -13,9 +13,9 @@ import sa.cerebra.task.entity.User;
 import sa.cerebra.task.exception.CerebraException;
 import sa.cerebra.task.exception.ErrorCode;
 import sa.cerebra.task.helper.PathHelper;
-import sa.cerebra.task.service.SendSms;
-import sa.cerebra.task.service.ShareLinkService;
-import sa.cerebra.task.service.StorageService;
+import sa.cerebra.task.sms.SendSms;
+import sa.cerebra.task.service.ShareService;
+import sa.cerebra.task.storage.StorageService;
 
 import java.security.SecureRandom;
 import java.util.Base64;
@@ -23,7 +23,7 @@ import java.util.Base64;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ShareLinkServiceImpl implements ShareLinkService {
+public class ShareServiceImpl implements ShareService {
     
     private final SendSms sendSms;
     private final StorageService storageService;

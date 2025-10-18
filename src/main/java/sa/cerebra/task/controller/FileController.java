@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import sa.cerebra.task.entity.User;
 import sa.cerebra.task.model.FileModel;
 import sa.cerebra.task.security.AuthHelper;
-import sa.cerebra.task.service.FileService;
+import sa.cerebra.task.service.impl.DefaultFileService;
 import sa.cerebra.task.validation.SafePath;
 
 import java.util.List;
@@ -25,12 +25,12 @@ import java.util.List;
 @Validated
 public class FileController {
 
-    private final FileService fileService;
+    private final DefaultFileService defaultFileService;
 
     @GetMapping
     public ResponseEntity<List<FileModel>> listFiles(@SafePath @RequestParam(required = false) String path) {
         User user = AuthHelper.getCurrentUser();
-        List<FileModel> files = fileService.listFiles(user, path);
+        List<FileModel> files = defaultFileService.listFiles(user, path);
         return ResponseEntity.ok(files);
     }
 
@@ -40,14 +40,14 @@ public class FileController {
             @RequestParam("files") MultipartFile[] files,
             @SafePath @RequestParam(value = "path", required = false) String path) {
         User user = AuthHelper.getCurrentUser();
-        List<FileModel> uploadedFiles = fileService.uploadMultipleFiles(user, files, path);
+        List<FileModel> uploadedFiles = defaultFileService.uploadMultipleFiles(user, files, path);
         return ResponseEntity.status(HttpStatus.CREATED).body(uploadedFiles);
     }
 
     @GetMapping("/download")
     public ResponseEntity<Resource> downloadFile(@SafePath @RequestParam String path, @RequestParam(required = false) boolean preview) {
         User user = AuthHelper.getCurrentUser();
-        Resource resource = fileService.downloadFile(user, path);
+        Resource resource = defaultFileService.downloadFile(user, path);
 
         if (preview) {
             return ResponseEntity.ok()

@@ -17,7 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.multipart.MultipartFile;
 import sa.cerebra.task.entity.User;
 import sa.cerebra.task.model.FileModel;
-import sa.cerebra.task.service.FileService;
+import sa.cerebra.task.service.impl.DefaultFileService;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -40,7 +40,7 @@ class FileControllerIntegrationTests {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private FileService fileService;
+    private DefaultFileService defaultFileService;
 
     private User testUser;
 
@@ -68,7 +68,7 @@ class FileControllerIntegrationTests {
                         .uploadDate(LocalDateTime.now())
                         .build()
         );
-        when(fileService.listFiles(eq(testUser), any(String.class))).thenReturn(expectedFiles);
+        when(defaultFileService.listFiles(eq(testUser), any(String.class))).thenReturn(expectedFiles);
 
         // When & Then
         mockMvc.perform(get("/api/v1/files")
@@ -92,7 +92,7 @@ class FileControllerIntegrationTests {
                         .uploadDate(LocalDateTime.now())
                         .build()
         );
-        when(fileService.listFiles(eq(testUser), any(String.class))).thenReturn(expectedFiles);
+        when(defaultFileService.listFiles(eq(testUser), any(String.class))).thenReturn(expectedFiles);
 
         // When & Then
         mockMvc.perform(get("/api/v1/files")
@@ -110,7 +110,7 @@ class FileControllerIntegrationTests {
                         .uploadDate(LocalDateTime.now())
                         .build()
         );
-        when(fileService.listFiles(eq(testUser), eq(null))).thenReturn(expectedFiles);
+        when(defaultFileService.listFiles(eq(testUser), eq(null))).thenReturn(expectedFiles);
 
         // When & Then
         mockMvc.perform(get("/api/v1/files"))
@@ -140,7 +140,7 @@ class FileControllerIntegrationTests {
                         .uploadDate(LocalDateTime.now())
                         .build()
         );
-        when(fileService.uploadMultipleFiles(eq(testUser), any(MultipartFile[].class), eq("uploads")))
+        when(defaultFileService.uploadMultipleFiles(eq(testUser), any(MultipartFile[].class), eq("uploads")))
                 .thenReturn(expectedFiles);
 
         // When & Then
@@ -168,7 +168,7 @@ class FileControllerIntegrationTests {
                         .uploadDate(LocalDateTime.now())
                         .build()
         );
-        when(fileService.uploadMultipleFiles(eq(testUser), any(MultipartFile[].class), eq(null)))
+        when(defaultFileService.uploadMultipleFiles(eq(testUser), any(MultipartFile[].class), eq(null)))
                 .thenReturn(expectedFiles);
 
         // When & Then
@@ -187,7 +187,7 @@ class FileControllerIntegrationTests {
         ByteArrayResource resource = new ByteArrayResource("file content".getBytes());
         resource.getFilename(); // Initialize filename
         
-        when(fileService.downloadFile(eq(testUser), eq(filePath))).thenReturn(resource);
+        when(defaultFileService.downloadFile(eq(testUser), eq(filePath))).thenReturn(resource);
 
         // When & Then
         mockMvc.perform(get("/api/v1/files/download")
@@ -206,7 +206,7 @@ class FileControllerIntegrationTests {
         ByteArrayResource resource = new ByteArrayResource("file content".getBytes());
         resource.getFilename(); // Initialize filename
         
-        when(fileService.downloadFile(eq(testUser), eq(filePath))).thenReturn(resource);
+        when(defaultFileService.downloadFile(eq(testUser), eq(filePath))).thenReturn(resource);
 
         // When & Then
         mockMvc.perform(get("/api/v1/files/download")
@@ -253,7 +253,7 @@ class FileControllerIntegrationTests {
                         .uploadDate(LocalDateTime.now())
                         .build()
         );
-        when(fileService.listFiles(eq(testUser), eq(""))).thenReturn(expectedFiles);
+        when(defaultFileService.listFiles(eq(testUser), eq(""))).thenReturn(expectedFiles);
 
         // When & Then
         mockMvc.perform(get("/api/v1/files")
@@ -277,7 +277,7 @@ class FileControllerIntegrationTests {
                         .uploadDate(LocalDateTime.now())
                         .build()
         );
-        when(fileService.uploadMultipleFiles(eq(testUser), any(MultipartFile[].class), eq("uploads")))
+        when(defaultFileService.uploadMultipleFiles(eq(testUser), any(MultipartFile[].class), eq("uploads")))
                 .thenReturn(expectedFiles);
 
         // When & Then
@@ -297,7 +297,7 @@ class FileControllerIntegrationTests {
         ByteArrayResource resource = new ByteArrayResource("file content".getBytes());
         resource.getFilename(); // Initialize filename
         
-        when(fileService.downloadFile(eq(testUser), eq(filePath))).thenReturn(resource);
+        when(defaultFileService.downloadFile(eq(testUser), eq(filePath))).thenReturn(resource);
 
         // When & Then
         mockMvc.perform(get("/api/v1/files/download")

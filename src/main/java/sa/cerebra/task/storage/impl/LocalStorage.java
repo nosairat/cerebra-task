@@ -1,4 +1,4 @@
-package sa.cerebra.task.service.impl;
+package sa.cerebra.task.storage.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -8,12 +8,11 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import sa.cerebra.task.entity.User;
 
 import sa.cerebra.task.exception.CerebraException;
 import sa.cerebra.task.exception.ErrorCode;
 import sa.cerebra.task.model.FileModel;
-import sa.cerebra.task.service.StorageService;
+import sa.cerebra.task.storage.StorageService;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

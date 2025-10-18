@@ -11,6 +11,8 @@ import sa.cerebra.task.entity.User;
 import sa.cerebra.task.exception.CerebraException;
 import sa.cerebra.task.exception.ErrorCode;
 import sa.cerebra.task.model.FileModel;
+import sa.cerebra.task.service.impl.DefaultFileService;
+import sa.cerebra.task.storage.StorageService;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,7 +24,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class FileServiceTests {
+class DefaultFileServiceTests {
 
     @Mock
     private StorageService storageService;
@@ -33,12 +35,12 @@ class FileServiceTests {
     @Mock
     private Resource resource;
 
-    private FileService fileService;
+    private DefaultFileService defaultFileService;
     private User testUser;
 
     @BeforeEach
     void setUp() {
-        fileService = new FileService(storageService);
+        defaultFileService = new DefaultFileService(storageService);
         testUser = new User();
         testUser.setId(1L);
         testUser.setPhone("+1234567890");
@@ -56,7 +58,7 @@ class FileServiceTests {
         when(storageService.list(userPath)).thenReturn(expectedFiles);
 
         // When
-        List<FileModel> result = fileService.listFiles(testUser, path);
+        List<FileModel> result = defaultFileService.listFiles(testUser, path);
 
         // Then
         assertThat(result).isEqualTo(expectedFiles);
@@ -72,7 +74,7 @@ class FileServiceTests {
         when(storageService.list( "1")).thenReturn(expectedFiles);
 
         // When
-        List<FileModel> result = fileService.listFiles(testUser, null);
+        List<FileModel> result = defaultFileService.listFiles(testUser, null);
 
         // Then
         assertThat(result).isEqualTo(expectedFiles);
@@ -95,7 +97,7 @@ class FileServiceTests {
         when(storageService.upload( files, userFilePath)).thenReturn(expectedFiles);
 
         // When
-        List<FileModel> result = fileService.uploadMultipleFiles(testUser, files, path);
+        List<FileModel> result = defaultFileService.uploadMultipleFiles(testUser, files, path);
 
         // Then
         assertThat(result).isEqualTo(expectedFiles);
@@ -111,7 +113,7 @@ class FileServiceTests {
         when(multipartFile.getOriginalFilename()).thenReturn(null);
 
         // When & Then
-        assertThatThrownBy(() -> fileService.uploadMultipleFiles(testUser, files, path))
+        assertThatThrownBy(() -> defaultFileService.uploadMultipleFiles(testUser, files, path))
                 .isInstanceOf(CerebraException.class)
                 .hasMessageContaining(ErrorCode.FILE_NAME_REQUIRED.getMessage());
     }
@@ -125,7 +127,7 @@ class FileServiceTests {
         when(multipartFile.getOriginalFilename()).thenReturn("");
 
         // When & Then
-        assertThatThrownBy(() -> fileService.uploadMultipleFiles(testUser, files, path))
+        assertThatThrownBy(() -> defaultFileService.uploadMultipleFiles(testUser, files, path))
                 .isInstanceOf(CerebraException.class)
                 .hasMessageContaining(ErrorCode.FILE_NAME_REQUIRED.getMessage());
     }
@@ -139,7 +141,7 @@ class FileServiceTests {
         when(multipartFile.getOriginalFilename()).thenReturn("   ");
 
         // When & Then
-        assertThatThrownBy(() -> fileService.uploadMultipleFiles(testUser, files, path))
+        assertThatThrownBy(() -> defaultFileService.uploadMultipleFiles(testUser, files, path))
                 .isInstanceOf(CerebraException.class)
                 .hasMessageContaining(ErrorCode.FILE_NAME_REQUIRED.getMessage());
     }
@@ -153,7 +155,7 @@ class FileServiceTests {
         when(multipartFile.getOriginalFilename()).thenReturn("../../../etc/passwd");
 
         // When & Then
-        assertThatThrownBy(() -> fileService.uploadMultipleFiles(testUser, files, path))
+        assertThatThrownBy(() -> defaultFileService.uploadMultipleFiles(testUser, files, path))
                 .isInstanceOf(CerebraException.class)
                 .hasMessageContaining(ErrorCode.INVALID_FILE_NAME.getMessage());
     }
@@ -167,7 +169,7 @@ class FileServiceTests {
         when(multipartFile.getOriginalFilename()).thenReturn("folder/file.txt");
 
         // When & Then
-        assertThatThrownBy(() -> fileService.uploadMultipleFiles(testUser, files, path))
+        assertThatThrownBy(() -> defaultFileService.uploadMultipleFiles(testUser, files, path))
                 .isInstanceOf(CerebraException.class)
                 .hasMessageContaining(ErrorCode.INVALID_FILE_NAME.getMessage());
     }
@@ -181,7 +183,7 @@ class FileServiceTests {
         when(multipartFile.getOriginalFilename()).thenReturn("folder\\file.txt");
 
         // When & Then
-        assertThatThrownBy(() -> fileService.uploadMultipleFiles(testUser, files, path))
+        assertThatThrownBy(() -> defaultFileService.uploadMultipleFiles(testUser, files, path))
                 .isInstanceOf(CerebraException.class)
                 .hasMessageContaining(ErrorCode.INVALID_FILE_NAME.getMessage());
     }
@@ -196,7 +198,7 @@ class FileServiceTests {
         when(multipartFile.getSize()).thenReturn(101L * 1024 * 1024); // 101MB
 
         // When & Then
-        assertThatThrownBy(() -> fileService.uploadMultipleFiles(testUser, files, path))
+        assertThatThrownBy(() -> defaultFileService.uploadMultipleFiles(testUser, files, path))
                 .isInstanceOf(CerebraException.class)
                 .hasMessageContaining(ErrorCode.FILE_SIZE_EXCEEDED.getMessage());
     }
@@ -214,7 +216,7 @@ class FileServiceTests {
         when(storageService.upload( files, userFilePath)).thenReturn(expectedFiles);
 
         // When
-        List<FileModel> result = fileService.uploadMultipleFiles(testUser, files, path);
+        List<FileModel> result = defaultFileService.uploadMultipleFiles(testUser, files, path);
 
         // Then
         assertThat(result).isEqualTo(expectedFiles);
@@ -235,7 +237,7 @@ class FileServiceTests {
 //        when(file2.getSize()).thenReturn(1024L);
 
         // When & Then
-        assertThatThrownBy(() -> fileService.uploadMultipleFiles(testUser, files, path))
+        assertThatThrownBy(() -> defaultFileService.uploadMultipleFiles(testUser, files, path))
                 .isInstanceOf(CerebraException.class)
                 .hasMessageContaining(ErrorCode.INVALID_FILE_NAME.getMessage());
     }

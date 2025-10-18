@@ -9,16 +9,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import sa.cerebra.task.dto.request.LoginRequest;
 import sa.cerebra.task.dto.request.ValidateOtpRequest;
 import sa.cerebra.task.dto.response.TokenResponse;
 import sa.cerebra.task.entity.User;
 import sa.cerebra.task.repository.UserRepository;
-import sa.cerebra.task.security.AuthService;
 import sa.cerebra.task.security.JwtUtil;
-import sa.cerebra.task.service.SendSms;
+import sa.cerebra.task.sms.SendSms;
 
 import java.util.concurrent.atomic.AtomicReference;
 

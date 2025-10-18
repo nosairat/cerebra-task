@@ -18,7 +18,7 @@ import sa.cerebra.task.dto.response.ShareLinkResponse;
 import sa.cerebra.task.entity.User;
 import sa.cerebra.task.exception.CerebraException;
 import sa.cerebra.task.exception.ErrorCode;
-import sa.cerebra.task.service.ShareLinkService;
+import sa.cerebra.task.service.ShareService;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -38,7 +38,7 @@ class ShareControllerIntegrationTests {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private ShareLinkService shareLinkService;
+    private ShareService shareService;
 
     private User testUser;
 
@@ -60,7 +60,7 @@ class ShareControllerIntegrationTests {
         request.setExpirationDays(5);
 
         ShareLinkResponse response = new ShareLinkResponse().setLink("http://localhost:8080/api/v1/share/abc123");
-        when(shareLinkService.shareLink(eq(testUser), any(CreateShareLinkRequest.class))).thenReturn(response);
+        when(shareService.shareLink(eq(testUser), any(CreateShareLinkRequest.class))).thenReturn(response);
 
         mockMvc.perform(post("/api/v1/share")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -104,7 +104,7 @@ class ShareControllerIntegrationTests {
             }
         };
 
-        when(shareLinkService.download(eq("token123"))).thenReturn(resource);
+        when(shareService.download(eq("token123"))).thenReturn(resource);
 
         mockMvc.perform(get("/api/v1/share/{token}", "token123"))
                 .andExpect(status().isOk())
@@ -115,7 +115,7 @@ class ShareControllerIntegrationTests {
 
     @Test
     void getShareLink_whenExpired_shouldReturnBadRequest() throws Exception {
-        when(shareLinkService.download(eq("expired"))).thenThrow(new CerebraException(ErrorCode.SHARE_LINK_EXPIRED));
+        when(shareService.download(eq("expired"))).thenThrow(new CerebraException(ErrorCode.SHARE_LINK_EXPIRED));
 
         mockMvc.perform(get("/api/v1/share/{token}", "expired"))
                 .andExpect(status().isBadRequest())

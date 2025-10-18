@@ -12,10 +12,8 @@ import sa.cerebra.task.dto.request.CreateShareLinkRequest;
 import sa.cerebra.task.dto.response.ShareLinkResponse;
 import sa.cerebra.task.entity.User;
 import sa.cerebra.task.security.AuthHelper;
-import sa.cerebra.task.service.ShareLinkService;
-import sa.cerebra.task.service.StorageService;
-
-import java.util.List;
+import sa.cerebra.task.service.ShareService;
+import sa.cerebra.task.storage.StorageService;
 
 @Slf4j
 @RestController
@@ -23,13 +21,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ShareController {
     
-    private final ShareLinkService shareLinkService;
+    private final ShareService shareService;
     private final StorageService storageService;
     
     @PostMapping
     public ResponseEntity<?> createShareLink(@Valid @RequestBody CreateShareLinkRequest request) {
         User user = AuthHelper.getCurrentUser();
-        ShareLinkResponse response = shareLinkService.shareLink(user, request);
+        ShareLinkResponse response = shareService.shareLink(user, request);
         return ResponseEntity.ok(response);
     }
 //
@@ -43,7 +41,7 @@ public class ShareController {
     @GetMapping("/{shareToken}")
     public ResponseEntity<?> getShareLink(@PathVariable String shareToken) {
         // Download the file using the original user's context
-        Resource resource =shareLinkService.download(shareToken);
+        Resource resource = shareService.download(shareToken);
 
         HttpHeaders headers = new HttpHeaders();
 

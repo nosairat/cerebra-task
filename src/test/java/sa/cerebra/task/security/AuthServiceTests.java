@@ -5,7 +5,7 @@ import sa.cerebra.task.cache.CacheStore;
 import sa.cerebra.task.dto.response.TokenResponse;
 import sa.cerebra.task.entity.User;
 import sa.cerebra.task.exception.CerebraException;
-import sa.cerebra.task.service.SendSms;
+import sa.cerebra.task.sms.SendSms;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
 
