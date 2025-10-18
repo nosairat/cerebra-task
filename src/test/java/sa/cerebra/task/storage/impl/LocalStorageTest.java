@@ -42,15 +42,11 @@ class LocalStorageTest {
     @BeforeEach
     void setUp() throws Exception {
         // Inject storageBasePath via reflection since it's @Value injected in prod
+        tempDir = Files.createTempDirectory("local-storage-test");
         var field = LocalStorage.class.getDeclaredField("storageBasePath");
         field.setAccessible(true);
-        field.set(localStorage, "tmp/cerebra-storage");
+        field.set(localStorage, tempDir.toString());
 
-        tempDir = Files.createTempDirectory("local-storage-test");
-        // Override getFullPath to use tempDir for tests
-        var getFullPathMethod = LocalStorage.class.getDeclaredMethod("getFullPath", String.class);
-        getFullPathMethod.setAccessible(true);
-        // We'll use reflection to mock the behavior or create a test-specific instance
     }
 
     @Test
