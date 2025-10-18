@@ -13,6 +13,5 @@ public interface StorageService {
     
     Resource getResource(String filePath);
 
-//    Path getActualPath(User user, String filePath);
 
 }
