@@ -32,8 +32,10 @@ public class AuthController {
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "OTP sent successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid phone number format"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
+            @ApiResponse(responseCode = "400", description = "Invalid phone number format", 
+                    content = @Content(schema = @Schema(ref = "#/components/schemas/ValidationErrorResponse"))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(ref = "#/components/schemas/InternalErrorResponse")))
     })
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request){
@@ -54,9 +56,12 @@ public class AuthController {
                             schema = @Schema(implementation = TokenResponse.class)
                     )
             ),
-            @ApiResponse(responseCode = "400", description = "Invalid OTP or phone number"),
-            @ApiResponse(responseCode = "401", description = "OTP expired or invalid"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
+            @ApiResponse(responseCode = "400", description = "Invalid OTP or phone number",
+                    content = @Content(schema = @Schema(ref = "#/components/schemas/InvalidOtpErrorResponse"))),
+            @ApiResponse(responseCode = "401", description = "OTP expired or invalid",
+                    content = @Content(schema = @Schema(ref = "#/components/schemas/UnauthorizedErrorResponse"))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(ref = "#/components/schemas/InternalErrorResponse")))
     })
     @PostMapping("/validate-otp")
     public ResponseEntity<?> validateOtp(@Valid @RequestBody ValidateOtpRequest request){

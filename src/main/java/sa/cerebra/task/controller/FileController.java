@@ -51,9 +51,12 @@ public class FileController {
                             array = @ArraySchema(schema = @Schema(implementation = FileModel.class))
                     )
             ),
-            @ApiResponse(responseCode = "401", description = "Unauthorized"),
-            @ApiResponse(responseCode = "400", description = "Invalid path format"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
+            @ApiResponse(responseCode = "401", description = "Unauthorized",
+                    content = @Content(schema = @Schema(ref = "#/components/schemas/UnauthorizedErrorResponse"))),
+            @ApiResponse(responseCode = "400", description = "Invalid path format",
+                    content = @Content(schema = @Schema(ref = "#/components/schemas/ValidationErrorResponse"))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(ref = "#/components/schemas/InternalErrorResponse")))
     })
     @GetMapping
     public ResponseEntity<List<FileModel>> listFiles(
@@ -77,9 +80,12 @@ public class FileController {
                             array = @ArraySchema(schema = @Schema(implementation = FileModel.class))
                     )
             ),
-            @ApiResponse(responseCode = "401", description = "Unauthorized"),
-            @ApiResponse(responseCode = "400", description = "Invalid file or path format"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
+            @ApiResponse(responseCode = "401", description = "Unauthorized",
+                    content = @Content(schema = @Schema(ref = "#/components/schemas/UnauthorizedErrorResponse"))),
+            @ApiResponse(responseCode = "400", description = "Invalid file or path format",
+                    content = @Content(schema = @Schema(ref = "#/components/schemas/FileSizeExceededErrorResponse"))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(ref = "#/components/schemas/InternalErrorResponse")))
     })
     @PostMapping
     public ResponseEntity<List<FileModel>> upload(
@@ -102,10 +108,14 @@ public class FileController {
                     description = "File downloaded successfully",
                     content = @Content(mediaType = "application/octet-stream")
             ),
-            @ApiResponse(responseCode = "401", description = "Unauthorized"),
-            @ApiResponse(responseCode = "404", description = "File not found"),
-            @ApiResponse(responseCode = "400", description = "Invalid path format"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
+            @ApiResponse(responseCode = "401", description = "Unauthorized",
+                    content = @Content(schema = @Schema(ref = "#/components/schemas/UnauthorizedErrorResponse"))),
+            @ApiResponse(responseCode = "404", description = "File not found",
+                    content = @Content(schema = @Schema(ref = "#/components/schemas/FileNotFoundErrorResponse"))),
+            @ApiResponse(responseCode = "400", description = "Invalid path format",
+                    content = @Content(schema = @Schema(ref = "#/components/schemas/ValidationErrorResponse"))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(ref = "#/components/schemas/InternalErrorResponse")))
     })
     @GetMapping("/download")
     public ResponseEntity<Resource> downloadFile(

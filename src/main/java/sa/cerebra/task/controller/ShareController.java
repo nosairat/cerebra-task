@@ -46,10 +46,14 @@ public class ShareController {
                             schema = @Schema(implementation = ShareLinkResponse.class)
                     )
             ),
-            @ApiResponse(responseCode = "401", description = "Unauthorized"),
-            @ApiResponse(responseCode = "404", description = "File not found"),
-            @ApiResponse(responseCode = "400", description = "Invalid request data"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
+            @ApiResponse(responseCode = "401", description = "Unauthorized",
+                    content = @Content(schema = @Schema(ref = "#/components/schemas/UnauthorizedErrorResponse"))),
+            @ApiResponse(responseCode = "404", description = "File not found",
+                    content = @Content(schema = @Schema(ref = "#/components/schemas/FileNotFoundErrorResponse"))),
+            @ApiResponse(responseCode = "400", description = "Invalid request data",
+                    content = @Content(schema = @Schema(ref = "#/components/schemas/ValidationErrorResponse"))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(ref = "#/components/schemas/InternalErrorResponse")))
     })
     @PostMapping
     public ResponseEntity<?> createShareLink(@Valid @RequestBody CreateShareLinkRequest request) {
@@ -68,8 +72,10 @@ public class ShareController {
                     description = "File downloaded successfully",
                     content = @Content(mediaType = "application/octet-stream")
             ),
-            @ApiResponse(responseCode = "404", description = "Share link not found or expired"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
+            @ApiResponse(responseCode = "404", description = "Share link not found or expired",
+                    content = @Content(schema = @Schema(ref = "#/components/schemas/ShareLinkExpiredErrorResponse"))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(ref = "#/components/schemas/InternalErrorResponse")))
     })
     @GetMapping("/{shareToken}")
     public ResponseEntity<?> getShareLink(
