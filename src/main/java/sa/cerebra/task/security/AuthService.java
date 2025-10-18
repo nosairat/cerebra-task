@@ -36,6 +36,7 @@ public class AuthService {
         if (!otp.equals(storedOtp))
             throw new CerebraException(ErrorCode.INVALID_OTP);
         cacheStore.remove(OTP_REDIS_NAME, phone);
+
         User user = (User) userDetailsService.loadUserByUsername(phone);
         return TokenResponse.builder()
                 .accessToken(jwtUtil.generateToken(user.getId()))

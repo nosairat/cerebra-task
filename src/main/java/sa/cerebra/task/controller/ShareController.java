@@ -22,22 +22,14 @@ import sa.cerebra.task.storage.StorageService;
 public class ShareController {
     
     private final ShareService shareService;
-    private final StorageService storageService;
-    
+
     @PostMapping
     public ResponseEntity<?> createShareLink(@Valid @RequestBody CreateShareLinkRequest request) {
         User user = AuthHelper.getCurrentUser();
         ShareLinkResponse response = shareService.shareLink(user, request);
         return ResponseEntity.ok(response);
     }
-//
-//    @GetMapping("/my-links")
-//    public ResponseEntity<List<ShareLinkResponse>> getUserShareLinks() {
-//        User user = AuthHelper.getCurrentUser();
-//        List<ShareLinkResponse> shareLinks = shareLinkService.getUserShareLinks(user);
-//        return ResponseEntity.ok(shareLinks);
-//    }
-    
+
     @GetMapping("/{shareToken}")
     public ResponseEntity<?> getShareLink(@PathVariable String shareToken) {
         // Download the file using the original user's context
