@@ -1,4 +1,4 @@
-package sa.cerebra.task.security;
+package sa.cerebra.task.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +9,8 @@ import sa.cerebra.task.dto.response.TokenResponse;
 import sa.cerebra.task.entity.User;
 import sa.cerebra.task.exception.CerebraException;
 import sa.cerebra.task.exception.ErrorCode;
+import sa.cerebra.task.helper.JwtHelper;
+import sa.cerebra.task.helper.OtpHelper;
 import sa.cerebra.task.sms.SendSms;
 
 @Service
@@ -17,7 +19,7 @@ import sa.cerebra.task.sms.SendSms;
 public class AuthService {
     final CacheStore cacheStore;
     final UserDetailsService userDetailsService;
-    final JwtUtil jwtUtil;
+    final JwtHelper jwtHelper;
     final SendSms sendSms;
     private final String OTP_REDIS_NAME = "login-otp";
 
@@ -39,7 +41,7 @@ public class AuthService {
 
         User user = (User) userDetailsService.loadUserByUsername(phone);
         return TokenResponse.builder()
-                .accessToken(jwtUtil.generateToken(user.getId()))
+                .accessToken(jwtHelper.generateToken(user.getId()))
                 .build();
 
     }

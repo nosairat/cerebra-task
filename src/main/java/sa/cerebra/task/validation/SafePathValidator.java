@@ -8,11 +8,9 @@ import java.util.regex.Pattern;
 
 public class SafePathValidator implements ConstraintValidator<SafePath, String> {
 
-    // Regex to quickly catch common path traversal patterns:
-    // It looks for sequences like '..', '%2e%2e', or similar encodings,
-    // potentially separated by directory separators.
+
     private static final Pattern PATH_TRAVERSAL_PATTERN =
-            Pattern.compile("(\\.\\.|%2e%2e|\\.\\\\|%2e%5c|\\/\\.)", Pattern.CASE_INSENSITIVE);
+            Pattern.compile("(\\.\\.|[<>\\^\\%\\$\\#\\t\\n])", Pattern.CASE_INSENSITIVE);
 
     @Override
     public boolean isValid(String path, ConstraintValidatorContext context) {
@@ -22,6 +20,9 @@ public class SafePathValidator implements ConstraintValidator<SafePath, String> 
 
         // 1. Check for absolute paths: User input should always be relative
         if (path.startsWith("/") || path.startsWith("\\") || path.contains(":")) {
+            return false;
+        }
+        if (path.contains("\\")) {
             return false;
         }
 
@@ -38,7 +39,10 @@ public class SafePathValidator implements ConstraintValidator<SafePath, String> 
             // If the normalized path is equivalent to the root path itself (i.e., the path
             // completely escaped or refers to the root), or if it contains ".." components
             // after normalization (which shouldn't happen if the input was relative), reject it.
-            if (normalizedPath.toString().equals("/") || normalizedPath.toString().contains("..")) {
+            if (normalizedPath.toString().equals("/") || normalizedPath.toString().contains("..")
+            || normalizedPath.toString().contains("<")
+            || normalizedPath.toString().contains(">"))
+            {
                 return false;
             }
 

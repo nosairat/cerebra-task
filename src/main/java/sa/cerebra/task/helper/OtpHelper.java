@@ -1,6 +1,4 @@
-package sa.cerebra.task.security;
-
-import org.springframework.stereotype.Service;
+package sa.cerebra.task.helper;
 
 import java.util.Random;
 

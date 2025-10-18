@@ -1,4 +1,4 @@
-package sa.cerebra.task.security;
+package sa.cerebra.task.filter;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import sa.cerebra.task.repository.UserRepository;
+import sa.cerebra.task.helper.JwtHelper;
 
 import java.io.IOException;
 
@@ -22,7 +23,7 @@ import java.io.IOException;
 public class JwtFilter extends OncePerRequestFilter {
 
 
-    final JwtUtil jwtUtil;
+    final JwtHelper jwtHelper;
     final UserRepository userRepository;
     final ObjectMapper objectMapper;
 
@@ -32,12 +33,12 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String token = extractToken(request);
         if (token != null) {
-            if(jwtUtil.isTokenExpired(token)) {
+            if(jwtHelper.isTokenExpired(token)) {
                 sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Token expired", "The access token provided has expired.");
                 return;
             }
 
-            String userId = jwtUtil.extractUsername(token);
+            String userId = jwtHelper.extractUsername(token);
             if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userRepository.findById(Long.parseLong(userId)).orElseThrow(()-> new RuntimeException("User Not Found"));
                 UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(

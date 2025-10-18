@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import sa.cerebra.task.dto.request.LoginRequest;
 import sa.cerebra.task.dto.request.ValidateOtpRequest;
 import sa.cerebra.task.dto.response.TokenResponse;
-import sa.cerebra.task.security.AuthService;
+import sa.cerebra.task.service.AuthService;
 
 @RestController
 @RequestMapping("/api/v1/auth")

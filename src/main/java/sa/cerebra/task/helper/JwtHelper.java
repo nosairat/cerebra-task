@@ -1,4 +1,4 @@
-package sa.cerebra.task.security;
+package sa.cerebra.task.helper;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -9,14 +9,13 @@ import org.springframework.stereotype.Component;
 import sa.cerebra.task.config.Configs;
 
 import java.security.Key;
-import java.security.SignatureException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-public class JwtUtil {
+public class JwtHelper {
     final Configs configs;
 
 
