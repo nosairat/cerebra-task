@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
+import sa.cerebra.task.BaseIntegrationTest;
 import sa.cerebra.task.dto.request.LoginRequest;
 import sa.cerebra.task.dto.request.ValidateOtpRequest;
 import sa.cerebra.task.dto.response.TokenResponse;
@@ -27,10 +28,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Transactional
-class AuthControllerIntegrationTests {
+
+class AuthControllerIntegrationTests extends BaseIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -51,10 +50,13 @@ class AuthControllerIntegrationTests {
 
     @BeforeEach
     void setUp() {
+        var phone="+1234567890";
         // Create and save test user
-        testUser = new User();
-        testUser.setPhone("+1234567890");
-        testUser = userRepository.save(testUser);
+        testUser = userRepository.findByPhone(phone).orElseGet(()-> {
+            var user = new User();
+            user.setPhone(phone);
+            return userRepository.save(user);
+        });
     }
 
     @Test

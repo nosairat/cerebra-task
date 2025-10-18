@@ -7,7 +7,7 @@ import sa.cerebra.task.sms.SendSms;
 
 @Service
 @Log4j2
-@Profile({"local"})
+@Profile({"test","local"})
 public class MockedSendSms implements SendSms {
 
     @Override

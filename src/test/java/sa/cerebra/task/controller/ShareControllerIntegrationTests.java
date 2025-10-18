@@ -13,6 +13,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
+import sa.cerebra.task.BaseIntegrationTest;
 import sa.cerebra.task.dto.request.CreateShareLinkRequest;
 import sa.cerebra.task.dto.response.ShareLinkResponse;
 import sa.cerebra.task.entity.User;
@@ -29,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class ShareControllerIntegrationTests {
+class ShareControllerIntegrationTests extends BaseIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;

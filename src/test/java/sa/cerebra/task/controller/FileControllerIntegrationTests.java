@@ -15,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.multipart.MultipartFile;
+import sa.cerebra.task.BaseIntegrationTest;
 import sa.cerebra.task.entity.User;
 import sa.cerebra.task.model.FileModel;
 import sa.cerebra.task.service.impl.DefaultFileService;
@@ -31,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class FileControllerIntegrationTests {
+class FileControllerIntegrationTests extends BaseIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;

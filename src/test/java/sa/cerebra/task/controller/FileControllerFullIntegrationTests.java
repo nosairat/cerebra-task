@@ -15,6 +15,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
+import sa.cerebra.task.BaseIntegrationTest;
 import sa.cerebra.task.entity.User;
 import sa.cerebra.task.repository.UserRepository;
 
@@ -25,10 +26,8 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Transactional
-class FileControllerFullIntegrationTests {
+
+class FileControllerFullIntegrationTests extends BaseIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
