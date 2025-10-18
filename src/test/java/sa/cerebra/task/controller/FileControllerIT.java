@@ -64,6 +64,15 @@ class FileControllerIT extends BaseIntegrationTest {
     }
 
     @Test
+    @DisplayName("GET /api/v1/files should return 401 with file list when expired authentication")
+    void listFiles_expired_token() throws Exception {
+        String expiredToken = jwtHelper.generateToken(testUser.getId(), -1l);
+        mockMvc.perform(get("/api/v1/files")
+                        .header("Authorization", "Bearer " + expiredToken))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     @DisplayName("GET /api/v1/files should return 200 with file list for specific path when authenticated")
     void listFiles_ShouldReturnOk_WithPath_WhenAuthenticated() throws Exception {
         mockMvc.perform(get("/api/v1/files")

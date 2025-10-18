@@ -24,13 +24,17 @@ public class JwtHelper {
     }
 
     public String generateToken(Long userId) {
+        return generateToken(userId, configs.getAccessTokenExpiration());
+    }
+
+    public String generateToken(Long userId, long accessTokenExpiration) {
         Map<String, Object> claims = new HashMap<>();
 
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(userId.toString())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + configs.getAccessTokenExpiration()))
+                .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpiration))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
