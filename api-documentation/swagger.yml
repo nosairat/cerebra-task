@@ -1,0 +1,553 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2822
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 openapi: 3.0.0\
+info:\
+  title: Cerebra Task API\
+  description: |\
+    # Cerebra Task API Documentation\
+\
+    ## Overview\
+    The Cerebra Task API is a comprehensive file management and sharing system designed for secure document handling and collaboration. This RESTful API provides robust authentication, file operations, and sharing capabilities with enterprise-grade security.\
+\
+    ## Key Features\
+    - **Phone-based Authentication**: Secure OTP-based login system\
+    - **File Management**: Upload, download, and organize files with path-based storage\
+    - **Secure File Sharing**: Generate time-limited shareable links with recipient targeting\
+    - **JWT Security**: Bearer token authentication for all protected endpoints\
+    - **Path Validation**: Secure file path handling to prevent directory traversal attacks\
+\
+    ## Authentication Flow\
+    1. **Login**: Send phone number to `/api/v1/auth/login` to receive OTP\
+    2. **Validate OTP**: Submit OTP to `/api/v1/auth/validate-otp` to get JWT token\
+    3. **Use Token**: Include JWT token in Authorization header for protected endpoints\
+\
+    ## File Operations\
+    - **Upload**: Multi-file upload with optional directory path\
+    - **Download**: Secure file download with preview mode support\
+    - **List**: Browse files and directories with path-based navigation\
+\
+    ## Sharing System\
+    - **Create Share Links**: Generate secure, time-limited sharing URLs\
+    - **Recipient Targeting**: Share files with specific phone numbers\
+    - **Expiration Control**: Configurable link expiration (default: 7 days)\
+\
+    ## Error Handling\
+    The API uses standardized error responses with specific error codes for different scenarios. All errors include descriptive messages and appropriate HTTP status codes.\
+\
+    ### Error Types\
+\
+    #### Authentication Errors\
+    - **INVALID_OTP** (400): Invalid or expired OTP code\
+    - **UNAUTHORIZED** (401): Missing or invalid JWT token\
+\
+    #### File Operation Errors\
+    - **FILE_NOT_FOUND** (400): Requested file does not exist\
+    - **FILE_SIZE_EXCEEDED** (400): File exceeds 100MB limit\
+    - **INVALID_FILE_NAME** (400): File name contains invalid characters\
+    - **PATH_NOT_FILE** (400): Specified path is not a file\
+    - **ACCESS_DENIED** (403): Insufficient permissions for file access\
+\
+    #### Sharing Errors\
+    - **SHARE_LINK_EXPIRED** (404): Share link has expired or is invalid\
+\
+    #### Validation Errors\
+    - **VALIDATION_ERROR** (400): Request validation failed\
+    - **BAD_REQUEST** (400): Malformed request data\
+\
+    #### System Errors\
+    - **INTERNAL_ERROR** (500): Unexpected server error\
+\
+    ## Rate Limiting & Security\
+    - File size limits: 100MB per file\
+    - Request size limits: 100MB total\
+    - Path validation to prevent security vulnerabilities\
+    - JWT token expiration for session management\
+  contact:\
+    name: Cerebra Development Team\
+    url: https://cerebra.com\
+    email: support@cerebra.com\
+  license:\
+    name: MIT License\
+    url: https://opensource.org/licenses/MIT\
+  version: 1.0.0\
+servers:\
+  - url: http://localhost:8080\
+    description: Generated server url\
+security:\
+  - bearerAuth: []\
+tags:\
+  - name: File Management\
+    description: File upload, download, and management APIs\
+  - name: Authentication\
+    description: Authentication management APIs\
+  - name: File Sharing\
+    description: File sharing and link generation APIs\
+paths:\
+  /api/v1/share:\
+    post:\
+      tags:\
+        - File Sharing\
+      summary: Create share link\
+      description: Create a shareable link for a file that can be accessed by the specified recipient\
+      operationId: createShareLink\
+      requestBody:\
+        content:\
+          application/json:\
+            schema:\
+              $ref: '#/components/schemas/CreateShareLinkRequest'\
+        required: true\
+      responses:\
+        '200':\
+          description: Share link created successfully\
+          content:\
+            application/json:\
+              schema:\
+                $ref: '#/components/schemas/ShareLinkResponse'\
+        '400':\
+          description: Invalid request data\
+          content:\
+            '*/*':\
+              schema:\
+                $ref: '#/components/schemas/ValidationErrorResponse'\
+        '401':\
+          description: Unauthorized\
+          content:\
+            '*/*':\
+              schema:\
+                $ref: '#/components/schemas/UnauthorizedErrorResponse'\
+        '404':\
+          description: File not found\
+          content:\
+            '*/*':\
+              schema:\
+                $ref: '#/components/schemas/FileNotFoundErrorResponse'\
+        '500':\
+          description: Internal server error\
+          content:\
+            '*/*':\
+              schema:\
+                $ref: '#/components/schemas/InternalErrorResponse'\
+      security:\
+        - bearerAuth: []\
+  /api/v1/files:\
+    get:\
+      tags:\
+        - File Management\
+      summary: List files\
+      description: Get a list of files in the specified directory path\
+      operationId: listFiles\
+      parameters:\
+        - name: path\
+          in: query\
+          description: Directory path to list files from\
+          required: false\
+          schema:\
+            type: string\
+          example: /documents\
+      responses:\
+        '200':\
+          description: Files listed successfully\
+          content:\
+            application/json:\
+              schema:\
+                type: array\
+                items:\
+                  $ref: '#/components/schemas/FileModel'\
+        '400':\
+          description: Invalid path format\
+          content:\
+            '*/*':\
+              schema:\
+                $ref: '#/components/schemas/ValidationErrorResponse'\
+        '401':\
+          description: Unauthorized\
+          content:\
+            '*/*':\
+              schema:\
+                $ref: '#/components/schemas/UnauthorizedErrorResponse'\
+        '500':\
+          description: Internal server error\
+          content:\
+            '*/*':\
+              schema:\
+                $ref: '#/components/schemas/InternalErrorResponse'\
+      security:\
+        - bearerAuth: []\
+    post:\
+      tags:\
+        - File Management\
+      summary: Upload files\
+      description: Upload multiple files to the specified directory path\
+      operationId: upload\
+      parameters:\
+        - name: files\
+          in: query\
+          description: Files to upload\
+          required: true\
+          schema:\
+            type: array\
+            items:\
+              type: string\
+              format: binary\
+        - name: path\
+          in: query\
+          description: Directory path to upload files to\
+          required: false\
+          schema:\
+            type: string\
+          example: /documents\
+      responses:\
+        '201':\
+          description: Files uploaded successfully\
+          content:\
+            application/json:\
+              schema:\
+                type: array\
+                items:\
+                  $ref: '#/components/schemas/FileModel'\
+        '400':\
+          description: Invalid file or path format\
+          content:\
+            '*/*':\
+              schema:\
+                $ref: '#/components/schemas/FileSizeExceededErrorResponse'\
+        '401':\
+          description: Unauthorized\
+          content:\
+            '*/*':\
+              schema:\
+                $ref: '#/components/schemas/UnauthorizedErrorResponse'\
+        '500':\
+          description: Internal server error\
+          content:\
+            '*/*':\
+              schema:\
+                $ref: '#/components/schemas/InternalErrorResponse'\
+      security:\
+        - bearerAuth: []\
+  /api/v1/auth/validate-otp:\
+    post:\
+      tags:\
+        - Authentication\
+      summary: Validate OTP and get access token\
+      description: Validate the OTP received via SMS and return JWT access token\
+      operationId: validateOtp\
+      requestBody:\
+        content:\
+          application/json:\
+            schema:\
+              $ref: '#/components/schemas/ValidateOtpRequest'\
+        required: true\
+      responses:\
+        '200':\
+          description: OTP validated successfully\
+          content:\
+            application/json:\
+              schema:\
+                $ref: '#/components/schemas/TokenResponse'\
+        '400':\
+          description: Invalid OTP or phone number\
+          content:\
+            '*/*':\
+              schema:\
+                $ref: '#/components/schemas/InvalidOtpErrorResponse'\
+        '401':\
+          description: OTP expired or invalid\
+          content:\
+            '*/*':\
+              schema:\
+                $ref: '#/components/schemas/UnauthorizedErrorResponse'\
+        '500':\
+          description: Internal server error\
+          content:\
+            '*/*':\
+              schema:\
+                $ref: '#/components/schemas/InternalErrorResponse'\
+  /api/v1/auth/login:\
+    post:\
+      tags:\
+        - Authentication\
+      summary: Login with phone number\
+      description: Send OTP to the provided phone number for authentication\
+      operationId: login\
+      requestBody:\
+        content:\
+          application/json:\
+            schema:\
+              $ref: '#/components/schemas/LoginRequest'\
+        required: true\
+      responses:\
+        '200':\
+          description: OTP sent successfully\
+          content:\
+            '*/*':\
+              schema:\
+                type: object\
+        '400':\
+          description: Invalid phone number format\
+          content:\
+            '*/*':\
+              schema:\
+                $ref: '#/components/schemas/ValidationErrorResponse'\
+        '500':\
+          description: Internal server error\
+          content:\
+            '*/*':\
+              schema:\
+                $ref: '#/components/schemas/InternalErrorResponse'\
+  /api/v1/share/\{shareToken\}:\
+    get:\
+      tags:\
+        - File Sharing\
+      summary: Access shared file\
+      description: Download a file using a share token (no authentication required)\
+      operationId: getShareLink\
+      parameters:\
+        - name: shareToken\
+          in: path\
+          description: Share token to access the file\
+          required: true\
+          schema:\
+            type: string\
+          example: abc123def456\
+      responses:\
+        '200':\
+          description: File downloaded successfully\
+          content:\
+            application/octet-stream: \{\}\
+        '404':\
+          description: Share link not found or expired\
+          content:\
+            '*/*':\
+              schema:\
+                $ref: '#/components/schemas/ShareLinkExpiredErrorResponse'\
+        '500':\
+          description: Internal server error\
+          content:\
+            '*/*':\
+              schema:\
+                $ref: '#/components/schemas/InternalErrorResponse'\
+      security:\
+        - bearerAuth: []\
+  /api/v1/files/download:\
+    get:\
+      tags:\
+        - File Management\
+      summary: Download file\
+      description: Download a file from the specified path\
+      operationId: downloadFile\
+      parameters:\
+        - name: path\
+          in: query\
+          description: File path to download\
+          required: true\
+          schema:\
+            type: string\
+          example: /documents/file.pdf\
+        - name: preview\
+          in: query\
+          description: Preview mode - if true, file will be displayed inline instead of downloaded\
+          required: false\
+          schema:\
+            type: boolean\
+      responses:\
+        '200':\
+          description: File downloaded successfully\
+          content:\
+            application/octet-stream: \{\}\
+        '400':\
+          description: Invalid path format\
+          content:\
+            '*/*':\
+              schema:\
+                $ref: '#/components/schemas/ValidationErrorResponse'\
+        '401':\
+          description: Unauthorized\
+          content:\
+            '*/*':\
+              schema:\
+                $ref: '#/components/schemas/UnauthorizedErrorResponse'\
+        '404':\
+          description: File not found\
+          content:\
+            '*/*':\
+              schema:\
+                $ref: '#/components/schemas/FileNotFoundErrorResponse'\
+        '500':\
+          description: Internal server error\
+          content:\
+            '*/*':\
+              schema:\
+                $ref: '#/components/schemas/InternalErrorResponse'\
+      security:\
+        - bearerAuth: []\
+components:\
+  schemas:\
+    ValidationErrorResponse:\
+      type: object\
+      properties:\
+        message:\
+          type: string\
+          description: General error message\
+          example: bad request\
+        errors:\
+          type: object\
+          description: Field-specific validation errors\
+          properties:\
+            phone:\
+              type: string\
+              example: Phone number is required\
+            otp:\
+              type: string\
+              example: OTP is required\
+    InternalErrorResponse:\
+      type: object\
+      properties:\
+        message:\
+          type: string\
+          description: Generic server error message\
+          example: internal server error\
+    UnauthorizedErrorResponse:\
+      type: object\
+      properties:\
+        message:\
+          type: string\
+          description: Authentication required\
+          example: Unauthorized\
+        errorCode:\
+          type: string\
+          description: Authentication error code\
+          example: UNAUTHORIZED\
+    FileNotFoundErrorResponse:\
+      type: object\
+      properties:\
+        message:\
+          type: string\
+          description: Requested file does not exist\
+          example: File not found\
+        errorCode:\
+          type: string\
+          description: File not found error code\
+          example: FILE_NOT_FOUND\
+    FileSizeExceededErrorResponse:\
+      type: object\
+      properties:\
+        message:\
+          type: string\
+          description: File size limit exceeded\
+          example: File size exceeds maximum limit of 100MB\
+        errorCode:\
+          type: string\
+          description: File size limit error code\
+          example: FILE_SIZE_EXCEEDED\
+    InvalidOtpErrorResponse:\
+      type: object\
+      properties:\
+        message:\
+          type: string\
+          description: OTP validation failed\
+          example: Invalid or expired OTP\
+        errorCode:\
+          type: string\
+          description: OTP validation error code\
+          example: INVALID_OTP\
+    ShareLinkExpiredErrorResponse:\
+      type: object\
+      properties:\
+        message:\
+          type: string\
+          description: Share link is no longer valid\
+          example: Share link has expired\
+        errorCode:\
+          type: string\
+          description: Share link expiration error code\
+          example: SHARE_LINK_EXPIRED\
+    CreateShareLinkRequest:\
+      type: object\
+      description: Request to create a shareable link for a file\
+      properties:\
+        path:\
+          type: string\
+          description: Path to the file to share\
+          example: /documents/file.pdf\
+          minLength: 1\
+        recipientPhone:\
+          type: string\
+          description: Phone number of the recipient\
+          example: '+1234567890'\
+          pattern: ^\\+?[1-9]\\d\{1,14\}$\
+        expirationDays:\
+          type: integer\
+          format: int32\
+          default: 7\
+          description: Number of days until the share link expires\
+          example: 7\
+      required:\
+        - path\
+        - recipientPhone\
+    ShareLinkResponse:\
+      type: object\
+      description: Response containing the generated share link\
+      properties:\
+        link:\
+          type: string\
+          description: Shareable link URL\
+          example: https://api.example.com/api/v1/share/abc123def456\
+    FileModel:\
+      type: object\
+      properties:\
+        name:\
+          type: string\
+        path:\
+          type: string\
+        uploadDate:\
+          type: string\
+          format: date-time\
+    ValidateOtpRequest:\
+      type: object\
+      description: OTP validation request\
+      properties:\
+        phone:\
+          type: string\
+          description: Phone number\
+          example: '+1234567890'\
+          minLength: 1\
+        otp:\
+          type: string\
+          description: OTP code received via SMS\
+          example: 123456\
+          minLength: 1\
+      required:\
+        - otp\
+        - phone\
+    TokenResponse:\
+      type: object\
+      description: JWT token response after successful authentication\
+      properties:\
+        accessToken:\
+          type: string\
+          description: JWT access token for API authentication\
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\
+    LoginRequest:\
+      type: object\
+      description: Login request with phone number\
+      properties:\
+        phone:\
+          type: string\
+          description: Phone number for authentication\
+          example: '+1234567890'\
+          minLength: 1\
+      required:\
+        - phone\
+  securitySchemes:\
+    bearerAuth:\
+      type: http\
+      description: JWT token obtained from validate-otp API after calling login API endpoint\
+      scheme: bearer\
+      bearerFormat: JWT\
+}
